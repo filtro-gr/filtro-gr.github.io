@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filtro GR — Οι λίστες μας στο Spotify</title>
+<meta name="description" content="Ελληνικές λίστες στο Spotify από το Filtro GR.">
+<style>
+  :root { --y:#F9E231; --k:#111; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--y); color:var(--k); font-family:Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+         -webkit-font-smoothing:antialiased; }
+  main { max-width:520px; margin:0 auto; padding:40px 20px 56px; }
+  header { text-align:center; margin-bottom:28px; }
+  header img { width:200px; height:auto; }
+  header p { margin-top:10px; font-size:15px; }
+  .k { font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin:26px 0 10px; }
+  a.l { display:flex; align-items:center; gap:14px; background:var(--k); color:var(--y); text-decoration:none;
+        border-radius:14px; padding:16px 18px; margin:10px 0; }
+  a.l:active { transform:scale(.99); }
+  a.l .t { flex:1; min-width:0; }
+  a.l b { display:block; font-size:18px; font-weight:800; }
+  a.l span { display:block; font-size:13px; opacity:.85; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  a.l img { width:28px; height:28px; flex:none; }
+  a.l.f { padding:22px 20px; border:3px solid var(--k); }
+  a.l.f b { font-size:24px; }
+  footer { text-align:center; font-size:12px; margin-top:34px; opacity:.75; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="assets/wordmark-black.png" alt="FILTRO">
+    <p>Ελληνικές λίστες στο Spotify. Πάτα, άκου, κάνε follow.</p>
+  </header>
+  <div id="today"></div>
+  <div class="k">Όλες οι λίστες</div>
+  <div id="all"></div>
+  <footer>Filtro GR · Αθήνα</footer>
+</main>
+<script>
+// Lists. "from" = first day (Athens) the list is shown: keeps lists out while a paid test or its follow-up week runs.
+const L = [
+  ["greek-hits","Ελληνικά — Greek Hits Now","Τα μεγαλύτερα ελληνικά τραγούδια τώρα","5Dx1Ektmu9DNvirDQ49J1p","2026-11-13"],
+  ["laika-2026","Λαϊκά — Hits Now","Τα λαϊκά που παίζονται σήμερα","7iqWFEEDDuUNhnbX9ULGa1","2026-11-17"],
+  ["trap","Ελληνικό Trap","Ό,τι ακούγεται τώρα στο ελληνικό trap","01yPLFdlr2YFRWluv5zFSQ","2026-11-17"],
+  ["entechno","Έντεχνο","Μητροπάνος, Αλεξίου, Κότσιρας, Μποφίλιου","6IWu3YeC6dT3Qn6WWYyPpn",""],
+  ["rebetiko","Ρεμπέτικα","Από τη Σμύρνη, τον Πειραιά και μετά","055wMglcVtO6khRxSQKKrA",""],
+  ["laika-classics","Παλιά Λαϊκά","Καζαντζίδης, Διονυσίου, Μαρινέλλα, Μοσχολιού","2dNbKmrGAJM7K94l5lf3mc",""],
+  ["nisiotika","Νησιώτικα","Πάριος, Κονιτόπουλοι, Καραμπεσίνη","7LHAXVEiXpPFqIEnv4I6Su",""],
+  ["pontiaka","Ποντιακά","Χρύσανθος, Καζαντζίδης, Αμαραντίδης, Νικολαΐδης","43x72naeH34jlbLb1iWI6j",""],
+  ["greek-rock","Ελληνικό Ροκ","Τρύπες, Ξύλινα Σπαθιά, Υπόγεια Ρεύματα","7cGQJZ7u9y6knxQ40KOIHl","2026-11-17"],
+  ["cafe-lounge","Χαλαρά Ελληνικά","Για τον καφέ και τις ήσυχες ώρες","37m8XGA3QdaF1zAU4KmYpo","2026-11-17"],
+  ["mediterranean-lounge","Meltemi — Greek Deep House","Ελληνικό deep house","1OeaTEgsLDc7p6ENqoIJ3F","2026-11-14"],
+  ["international","Ξένα — International Hits Now","Η ξένη μουσική που ακούγεται στην Ελλάδα","4P9fqZCnebtLFn702RAtur","2026-11-17"]
+];
+// The list each day's posts point to: [morning, evening]. Evening applies from 20:00 Athens.
+const S = {
+  "2026-11-09":["entechno",null], "2026-11-10":["rebetiko",null], "2026-11-11":["nisiotika","entechno"],
+  "2026-11-12":["rebetiko",null], "2026-11-13":["greek-hits",null], "2026-11-14":["mediterranean-lounge","rebetiko"],
+  "2026-11-15":["rebetiko",null], "2026-11-16":["laika-classics",null], "2026-11-17":["trap",null],
+  "2026-11-18":["laika-classics","entechno"], "2026-11-19":["greek-rock",null], "2026-11-20":["laika-2026",null],
+  "2026-11-21":["cafe-lounge","greek-rock"], "2026-11-22":["pontiaka",null]
+};
+function athensNow() {
+  const p = new Intl.DateTimeFormat("en-CA", {timeZone:"Europe/Athens", year:"numeric", month:"2-digit", day:"2-digit",
+            hour:"2-digit", hourCycle:"h23"}).formatToParts(new Date());
+  const g = t => p.find(x => x.type === t).value;
+  return { day: `${g("year")}-${g("month")}-${g("day")}`, hour: +g("hour") };
+}
+const ICON = "assets/spotify-icon-green.png";
+function card(x, featured) {
+  const a = document.createElement("a");
+  a.className = "l" + (featured ? " f" : "");
+  a.href = "https://open.spotify.com/playlist/" + x[3];
+  a.rel = "noopener";
+  a.innerHTML = `<img src="${ICON}" alt=""><div class="t"><b></b><span></span></div>`;
+  a.querySelector("b").textContent = x[1];
+  a.querySelector("span").textContent = x[2];
+  return a;
+}
+const now = athensNow();
+const visible = L.filter(x => !x[4] || now.day >= x[4]);
+const todays = S[now.day];
+let fk = todays ? ((now.hour >= 20 && todays[1]) ? todays[1] : todays[0]) : null;
+const f = visible.find(x => x[0] === fk);
+if (f) {
+  const t = document.getElementById("today");
+  const k = document.createElement("div"); k.className = "k"; k.textContent = "Από τη σημερινή ανάρτηση";
+  t.append(k, card(f, true));
+}
+const all = document.getElementById("all");
+visible.filter(x => x !== f).forEach(x => all.append(card(x, false)));
+</script>
+</body>
+</html>
