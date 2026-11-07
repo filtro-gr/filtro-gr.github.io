@@ -39,27 +39,29 @@
   <footer>Filtro GR · Αθήνα</footer>
 </main>
 <script>
-// Lists. "from" = first day (Athens) the list is shown: keeps lists out while a paid test or its follow-up week runs.
+// Lists. [key, name, line, playlist id, first day shown (Athens), optional [hidden from, hidden to]].
+// Dates follow Nico's paid calendar (tracking/tests.csv): a list is off this page while it is a test control or in a no-CTA window.
 const L = [
   ["greek-hits","Ελληνικά — Greek Hits Now","Τα μεγαλύτερα ελληνικά τραγούδια τώρα","5Dx1Ektmu9DNvirDQ49J1p",""],
-  ["laika-2026","Λαϊκά — Hits Now","Τα λαϊκά που παίζονται σήμερα","7iqWFEEDDuUNhnbX9ULGa1","2026-11-10"],
-  ["trap","Ελληνικό Trap","Ό,τι ακούγεται τώρα στο ελληνικό trap","01yPLFdlr2YFRWluv5zFSQ","2026-11-10"],
+  ["laika-2026","Λαϊκά — Hits Now","Τα λαϊκά που παίζονται σήμερα","7iqWFEEDDuUNhnbX9ULGa1","2026-11-15"],
+  ["trap","Ελληνικό Trap","Ό,τι ακούγεται τώρα στο ελληνικό trap","01yPLFdlr2YFRWluv5zFSQ","2026-11-15"],
   ["entechno","Έντεχνο","Μητροπάνος, Αλεξίου, Κότσιρας, Μποφίλιου","6IWu3YeC6dT3Qn6WWYyPpn",""],
   ["rebetiko","Ρεμπέτικα","Από τη Σμύρνη, τον Πειραιά και μετά","055wMglcVtO6khRxSQKKrA",""],
-  ["laika-classics","Παλιά Λαϊκά","Καζαντζίδης, Διονυσίου, Μαρινέλλα, Μοσχολιού","2dNbKmrGAJM7K94l5lf3mc",""],
+  ["laika-classics","Παλιά Λαϊκά","Καζαντζίδης, Διονυσίου, Μαρινέλλα, Μοσχολιού","2dNbKmrGAJM7K94l5lf3mc","",["2026-11-15","2026-11-30"]],
   ["nisiotika","Νησιώτικα","Πάριος, Κονιτόπουλοι, Καραμπεσίνη","7LHAXVEiXpPFqIEnv4I6Su",""],
   ["pontiaka","Ποντιακά","Χρύσανθος, Καζαντζίδης, Αμαραντίδης, Νικολαΐδης","43x72naeH34jlbLb1iWI6j",""],
-  ["greek-rock","Ελληνικό Ροκ","Τρύπες, Ξύλινα Σπαθιά, Υπόγεια Ρεύματα","7cGQJZ7u9y6knxQ40KOIHl","2026-11-10"],
-  ["cafe-lounge","Χαλαρά Ελληνικά","Για τον καφέ και τις ήσυχες ώρες","37m8XGA3QdaF1zAU4KmYpo","2026-11-10"],
+  ["greek-rock","Ελληνικό Ροκ","Τρύπες, Ξύλινα Σπαθιά, Υπόγεια Ρεύματα","7cGQJZ7u9y6knxQ40KOIHl","2026-11-15"],
+  ["cafe-lounge","Χαλαρά Ελληνικά","Για τον καφέ και τις ήσυχες ώρες","37m8XGA3QdaF1zAU4KmYpo","2026-11-15"],
   ["mediterranean-lounge","Meltemi — Greek Deep House","Ελληνικό deep house","1OeaTEgsLDc7p6ENqoIJ3F","2026-11-07"],
-  ["international","Ξένα — International Hits Now","Η ξένη μουσική που ακούγεται στην Ελλάδα","4P9fqZCnebtLFn702RAtur","2026-11-10"]
+  ["chalara","Χαλαρά Beats","Instrumental chillout για τις χαλαρές ώρες","4oX71nZc7gFvwZGtUcubWV",""],
+  ["international","Ξένα — International Hits Now","Η ξένη μουσική που ακούγεται στην Ελλάδα","4P9fqZCnebtLFn702RAtur","2026-11-15"]
 ];
 // The list each day's posts point to: [morning, evening]. Evening applies from 20:00 Athens.
 const S = {
-  "2026-11-09":["entechno",null], "2026-11-10":["rebetiko",null], "2026-11-11":["nisiotika","entechno"],
-  "2026-11-12":["rebetiko",null], "2026-11-13":["greek-hits",null], "2026-11-14":["mediterranean-lounge","rebetiko"],
-  "2026-11-15":["rebetiko",null], "2026-11-16":["laika-classics",null], "2026-11-17":["trap",null],
-  "2026-11-18":["laika-classics","entechno"], "2026-11-19":["greek-rock",null], "2026-11-20":["laika-2026",null],
+  "2026-11-09":["entechno",null], "2026-11-10":["rebetiko",null], "2026-11-11":["nisiotika","chalara"],
+  "2026-11-12":["rebetiko",null], "2026-11-13":["greek-hits",null], "2026-11-14":["mediterranean-lounge","chalara"],
+  "2026-11-15":["rebetiko",null], "2026-11-16":["greek-hits",null], "2026-11-17":["trap",null],
+  "2026-11-18":["entechno",null], "2026-11-19":["greek-rock",null], "2026-11-20":["laika-2026",null],
   "2026-11-21":["cafe-lounge","greek-rock"], "2026-11-22":["pontiaka",null]
 };
 function athensNow() {
@@ -80,7 +82,7 @@ function card(x, featured) {
   return a;
 }
 const now = athensNow();
-const visible = L.filter(x => !x[4] || now.day >= x[4]);
+const visible = L.filter(x => (!x[4] || now.day >= x[4]) && !(x[5] && now.day >= x[5][0] && now.day <= x[5][1]));
 const todays = S[now.day];
 let fk = todays ? ((now.hour >= 20 && todays[1]) ? todays[1] : todays[0]) : null;
 const f = visible.find(x => x[0] === fk);
